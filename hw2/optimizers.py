@@ -72,7 +72,8 @@ class VanillaSGD(Optimizer):
             #  Update the gradient according to regularization and then
             #  update the parameters tensor.
             # ====== YOUR CODE: ======
-            raise NotImplementedError()
+            dp += self.reg * p # Add regularization to gradient
+            p -= self.learn_rate * dp # Step
             # ========================
 
 
@@ -91,10 +92,15 @@ class MomentumSGD(Optimizer):
 
         # TODO: Add your own initializations as needed.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        self.v = []
+        for p, dp in self.params:
+            if dp is None:
+                continue
+            self.v.append(torch.zeros_like(dp))
         # ========================
 
     def step(self):
+        i = 0
         for p, dp in self.params:
             if dp is None:
                 continue
@@ -103,7 +109,10 @@ class MomentumSGD(Optimizer):
             # update the parameters tensor based on the velocity. Don't forget
             # to include the regularization term.
             # ====== YOUR CODE: ======
-            raise NotImplementedError()
+            dp += self.reg * p # Add regularization to gradient
+            self.v[i] = (self.momentum * self.v[i]) - (self.learn_rate * dp) # Update momentum
+            p += self.v[i] # Step
+            i += 1
             # ========================
 
 
@@ -124,10 +133,15 @@ class RMSProp(Optimizer):
 
         # TODO: Add your own initializations as needed.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        self.r = []
+        for p, dp in self.params:
+            if dp is None:
+                continue
+            self.r.append(torch.zeros_like(dp))
         # ========================
 
     def step(self):
+        i = 0
         for p, dp in self.params:
             if dp is None:
                 continue
@@ -137,5 +151,8 @@ class RMSProp(Optimizer):
             # average of it's previous gradients. Use it to update the
             # parameters tensor.
             # ====== YOUR CODE: ======
-            raise NotImplementedError()
+            dp += self.reg * p # Add regularization to gradient
+            self.r[i] = (self.decay * self.r[i]) + ((1-self.decay) * (dp ** 2)) # Update momentum
+            p -= (self.learn_rate / torch.sqrt(self.r[i] + self.eps)) * dp # Step
+            i += 1
             # ========================

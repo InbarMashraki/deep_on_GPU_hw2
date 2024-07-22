@@ -80,8 +80,17 @@ class CNN(nn.Module):
         #  Note: If N is not divisible by P, then N mod P additional
         #  CONV->ACTs should exist at the end, without a POOL after them.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
 
+        current_in_channels = in_channels
+
+        for i, out_channels in enumerate(self.channels):
+            layers.append(nn.Conv2d(current_in_channels, out_channels, **self.conv_params))
+            layers.append(ACTIVATIONS[self.activation_type](**self.activation_params))
+            current_in_channels = out_channels
+
+            if self.pool_every>0 and (i + 1) % self.pool_every == 0:
+                layers.append(POOLINGS[self.pooling_type](**self.pooling_params))
+            
         # ========================
         seq = nn.Sequential(*layers)
         return seq
@@ -95,7 +104,10 @@ class CNN(nn.Module):
         rng_state = torch.get_rng_state()
         try:
             # ====== YOUR CODE: ======
-            raise NotImplementedError()
+            x = torch.zeros(1, *self.in_size)
+            z = self.feature_extractor(x)
+            n_features = z.numel() #Returns the total number of elements in the input tensor.
+            return n_features
             # ========================
         finally:
             torch.set_rng_state(rng_state)
@@ -109,7 +121,12 @@ class CNN(nn.Module):
         #  - The last Linear layer should have an output dim of out_classes.
         mlp: MLP = None
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        in_features = self._n_features()
+        dims = self.hidden_dims.copy()
+        dims.append(self.out_classes)
+        nonlins= [ACTIVATIONS[self.activation_type](**self.activation_params)]*len(self.hidden_dims)
+        nonlins.append(ACTIVATIONS["none"]())
+        mlp=MLP(in_dim=in_features, dims=dims, nonlins=nonlins)
         # ========================
         return mlp
 
@@ -119,7 +136,9 @@ class CNN(nn.Module):
         #  return class scores.
         out: Tensor = None
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        z = self.feature_extractor(x)
+        z=z.view(z.size(0), -1) # Flatten the tensor
+        out=self.mlp(z)
         # ========================
         return out
 
@@ -179,14 +198,44 @@ class ResidualBlock(nn.Module):
         #  - Don't create layers which you don't use! This will prevent
         #    correct comparison in the test.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+
+        main_layers=[]
+        shortcut_layaers=[]
+        
+        #main path
+        current_in_channels = in_channels
+        for i, (out_channels, kernel_size) in enumerate(zip(channels, kernel_sizes)):
+            # in order to stay with the same size as the image
+            padding=(kernel_size-1 )//2
+            dilation=1
+            stride=1
+            main_layers.append(nn.Conv2d(current_in_channels, out_channels, kernel_size, bias=True, padding=padding, dilation=dilation, stride=stride))
+            if i!= len(channels)-1:
+                if dropout>0:
+                    main_layers.append(nn.Dropout2d(dropout))
+                if batchnorm:
+                    main_layers.append(nn.BatchNorm2d(out_channels))
+                main_layers.append(ACTIVATIONS[activation_type](**activation_params))
+            current_in_channels = out_channels
+        
+        self.main_path=nn.Sequential(*main_layers)
+
+        #if the last out-channel != in_cannel
+        if channels[-1]!= in_channels:
+            shortcut_layaers.append(nn.Conv2d(in_channels,channels[-1], kernel_size=1, bias=False, padding=0, dilation=1, stride=1))
+        else:
+            shortcut_layaers.append(nn.Identity())    
+        self.shortcut_path = nn.Sequential(*shortcut_layaers)
         # ========================
 
     def forward(self, x: Tensor):
         # TODO: Implement the forward pass. Save the main and residual path to `out`.
         out: Tensor = None
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        
+        main_path = self.main_path(x)
+        shortcut = self.shortcut_path(x)
+        out = main_path + shortcut
         # ========================
         out = torch.relu(out)
         return out
