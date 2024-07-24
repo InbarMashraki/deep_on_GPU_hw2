@@ -107,18 +107,36 @@ def cnn_experiment(
     #   for you automatically.
     fit_res = None
     # ====== YOUR CODE: ======
-    train_dl = DataLoader(ds_train, bs_train)
-    test_dl = DataLoader(ds_test, bs_test)
+    train_dl = DataLoader(ds_train, bs_train, shuffle=True)
+    test_dl = DataLoader(ds_test, bs_test, shuffle=True)
 
     channels = [channel for channel in filters_per_layer for _ in range(layers_per_block)]
     x0, _=ds_train[0]
+
+    #best so far= 
+    """best train- 51, best val - 40, val is up and down. 
+    activation_type= 'relu' or lrelu with 0.001
+    activation_params=dict()
+    conv_params=dict(kernel_size=3, stride=1, padding=1)
+    pooling_params=dict(kernel_size=2)
+    pooling_type='max' 
+    lr=0.001
+    reg=0.001
+    optimizer = torch.optim.SGD(params=model.parameters(),nesterov=True,lr=lr,weight_decay=reg, momentum = 0.99)
+    """
+    
     
     #hp
     activation_type= 'lrelu'
-    activation_params=dict(negative_slope=0.01)
+    activation_params=dict(negative_slope=0.001)
+    #activation_type= 'relu'
+    #activation_params=dict()
     conv_params=dict(kernel_size=3, stride=1, padding=1)
     pooling_params=dict(kernel_size=2)
-    pooling_type='avg'
+    pooling_type='max' 
+    #pooling_type='avg'
+    lr=0.001
+    reg=0.001
     
     model = ArgMaxClassifier(model_cls(in_size= x0.shape, out_classes=10, channels=channels, 
                             pool_every=pool_every, hidden_dims=hidden_dims, conv_params=conv_params, 
@@ -128,13 +146,12 @@ def cnn_experiment(
 
     #hp
     loss_fn = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(params=model.parameters(),nesterov=True,lr=lr,weight_decay=reg,momentum = 0.999)
-    #optimizer = torch.optim.RMSprop(model.parameters(), lr=lr, weight_decay=reg)
+    optimizer = torch.optim.SGD(params=model.parameters(),nesterov=True,lr=lr,weight_decay=reg, momentum = 0.99)
+    
     
     #train
     trainer = ClassifierTrainer(model, loss_fn, optimizer, device)
     fit_res = trainer.fit(train_dl, test_dl, num_epochs=epochs, early_stopping=early_stopping)
-
     # ========================
 
     save_experiment(run_name, out_dir, cfg, fit_res)
