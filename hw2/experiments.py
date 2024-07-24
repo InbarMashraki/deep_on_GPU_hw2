@@ -107,7 +107,34 @@ def cnn_experiment(
     #   for you automatically.
     fit_res = None
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    train_dl = DataLoader(ds_train, bs_train)
+    test_dl = DataLoader(ds_test, bs_test)
+
+    channels = [channel for channel in filters_per_layer for _ in range(layers_per_block)]
+    x0, _=ds_train[0]
+    
+    #hp
+    activation_type= 'lrelu'
+    activation_params=dict(negative_slope=0.01)
+    conv_params=dict(kernel_size=3, stride=1, padding=1)
+    pooling_params=dict(kernel_size=2)
+    pooling_type='avg'
+    
+    model = ArgMaxClassifier(model_cls(in_size= x0.shape, out_classes=10, channels=channels, 
+                            pool_every=pool_every, hidden_dims=hidden_dims, conv_params=conv_params, 
+                            activation_type=activation_type, activation_params=activation_params, 
+                            pooling_type= pooling_type, pooling_params=pooling_params))
+    model.to(device)
+
+    #hp
+    loss_fn = torch.nn.CrossEntropyLoss()
+    optimizer = torch.optim.SGD(params=model.parameters(),nesterov=True,lr=lr,weight_decay=reg,momentum = 0.999)
+    #optimizer = torch.optim.RMSprop(model.parameters(), lr=lr, weight_decay=reg)
+    
+    #train
+    trainer = ClassifierTrainer(model, loss_fn, optimizer, device)
+    fit_res = trainer.fit(train_dl, test_dl, num_epochs=epochs, early_stopping=early_stopping)
+
     # ========================
 
     save_experiment(run_name, out_dir, cfg, fit_res)
