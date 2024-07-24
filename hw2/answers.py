@@ -253,7 +253,7 @@ def part4_optim_hp():
     # ====== YOUR CODE: ======
     lr=0.001
     weight_decay=0.001
-    momentum= 0.99
+    momentum= 0.999
     loss_fn= torch.nn.CrossEntropyLoss()
     # ========================
     return dict(lr=lr, weight_decay=weight_decay, momentum=momentum, loss_fn=loss_fn)
