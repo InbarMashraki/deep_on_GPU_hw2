@@ -344,7 +344,7 @@ class ResNet(CNN):
                 layers += [ResidualBlock(curr_in_cannels,channels=block,kernel_sizes=kernel_sizes,batchnorm=self.batchnorm, dropout=self.dropout, activation_type=self.activation_type, activation_params=self.activation_params)]
             else:
                 #blocks should be bottleneck only if in_channel=out_chanel of block
-                layers += [ResidualBottleneckBlock(curr_in_cannels,channels=block,kernel_sizes=kernel_sizes,batchnorm=self.batchnorm, dropout=self.dropout, activation_type=self.activation_type, activation_params=self.activation_params)]
+                layers += [ResidualBottleneckBlock(in_out_channels=curr_in_cannels,inner_channels=block,inner_kernel_sizes=kernel_sizes,batchnorm=self.batchnorm, dropout=self.dropout, activation_type=self.activation_type, activation_params=self.activation_params)]
             curr_in_cannels= block[-1]
             if len(block)==self.pool_every:
                 layers.append(POOLINGS[self.pooling_type](**self.pooling_params))
