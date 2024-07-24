@@ -277,7 +277,44 @@ class ResidualBottleneckBlock(ResidualBlock):
         #  Initialize the base class in the right way to produce the bottleneck block
         #  architecture.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        super().__init__(in_channels=in_out_channels, channels=inner_channels, kernel_sizes=inner_kernel_sizes)
+        main_layers=[]
+        shortcut_layaers=[]
+        batchnorm: bool = False
+        dropout: float = 0.0
+        activation_type: str = "relu"
+        activation_params: dict = {}
+        #main path
+        current_in_channels = in_out_channels
+        for i, (out_channels, kernel_size) in enumerate(zip(inner_channels, inner_kernel_sizes)):
+            #first projection- to first inner channel. CHECK IF BIAS =TRUE
+            if (i==0):
+                main_layers.append(nn.Conv2d(current_in_channels, out_channels, kernel_size=1))
+                current_in_channels = out_channels
+            # in order to stay with the same size as the image
+            padding=(kernel_size-1 )//2
+            dilation=1
+            stride=1
+            main_layers.append(nn.Conv2d(current_in_channels, out_channels, kernel_size, bias=True, padding=padding, dilation=dilation, stride=stride))
+            if dropout>0:
+                main_layers.append(nn.Dropout2d(dropout))
+            if batchnorm:
+                main_layers.append(nn.BatchNorm2d(out_channels))
+            if activation_params:
+                main_layers.append(ACTIVATIONS[activation_type](**activation_params))
+            else:
+                main_layers.append(ACTIVATIONS[activation_type]())
+            
+            #last projection back to in_out_channels CHECK IF BIAS =TRUE
+            if (i==len(inner_channels)-1):
+                main_layers.append(nn.Conv2d(out_channels, in_out_channels, kernel_size=1))
+            
+            current_in_channels = out_channels  
+        self.main_path=nn.Sequential(*main_layers)
+
+        #shortcut path
+        shortcut_layaers.append(nn.Identity())    
+        self.shortcut_path = nn.Sequential(*shortcut_layaers)
         # ========================
 
 
@@ -305,7 +342,7 @@ class ResNet(CNN):
         super().__init__(
             in_size, out_classes, channels, pool_every, hidden_dims, **kwargs
         )
-
+    
     def _make_feature_extractor(self):
         in_channels, in_h, in_w, = tuple(self.in_size)
 
@@ -326,7 +363,26 @@ class ResNet(CNN):
         #    2 + len(inner_channels). [1 for each 1X1 proection convolution] + [# inner convolutions].
         # - Use batchnorm and dropout as requested.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        n=len(self.channels)
+        #create the inner_channels to send over to res-block/bottleneck functions
+        block_chanels=[]
+        for i in range(int(n/self.pool_every)):
+            block_chanels += [self.channels[i*self.pool_every: (i*self.pool_every)+self.pool_every]]
+        block_chanels += [self.channels[int(n/self.pool_every)*self.pool_every:]]
+        curr_in_cannels=in_channels
+        
+        for block in block_chanels:
+            kernel_sizes=[3]*len(block)
+            if self.bottleneck== False or (self.bottleneck== True and curr_in_cannels!=block[-1]):
+            #block should be ResidualBlock 
+                layers += [ResidualBlock(curr_in_cannels,channels=block,kernel_sizes=kernel_sizes,batchnorm=self.batchnorm, dropout=self.dropout, activation_type=self.activation_type, activation_params=self.activation_params)]
+            else:
+                #blocks should be bottleneck only if in_channel=out_chanel of block
+                layers += [ResidualBottleneckBlock(curr_in_cannels,channels=block,kernel_sizes=kernel_sizes,batchnorm=self.batchnorm, dropout=self.dropout, activation_type=self.activation_type, activation_params=self.activation_params)]
+            curr_in_cannels= block[-1]
+            if len(block)==self.pool_every:
+                layers.append(POOLINGS[self.pooling_type](**self.pooling_params))
+    
         # ========================
         seq = nn.Sequential(*layers)
         return seq
