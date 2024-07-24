@@ -334,7 +334,8 @@ class ResNet(CNN):
         block_chanels=[]
         for i in range(int(n/self.pool_every)):
             block_chanels += [self.channels[i*self.pool_every: (i*self.pool_every)+self.pool_every]]
-        block_chanels += [self.channels[int(n/self.pool_every)*self.pool_every:]]
+        if n%self.pool_every!=0:
+            block_chanels += [self.channels[int(n/self.pool_every)*self.pool_every:]]
         curr_in_cannels=in_channels
         
         for block in block_chanels:
