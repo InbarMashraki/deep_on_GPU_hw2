@@ -71,6 +71,13 @@ def cnn_experiment(
     hidden_dims=[1024],
     model_type="cnn",
     # You can add extra configuration for your experiments here
+    activation_type= 'relu',
+    activation_params=dict(),
+    conv_params=dict(kernel_size=3, stride=1, padding=1),
+    pooling_params=dict(kernel_size=2),
+    pooling_type='max',
+    batchnorm = True, dropout = 0.1, bottleneck=False,
+    momentum=0.99,
     **kw,
 ):
     """
@@ -108,59 +115,31 @@ def cnn_experiment(
     fit_res = None
     # ====== YOUR CODE: ======
     train_dl = DataLoader(ds_train, bs_train, shuffle=True)
-    test_dl = DataLoader(ds_test, bs_test, shuffle=True)
+    test_dl = DataLoader(ds_test, bs_test, shuffle=False)
 
     channels = [channel for channel in filters_per_layer for _ in range(layers_per_block)]
     x0, _=ds_train[0]
 
-    #best so far= 
-    """best train- 51, best val - 40, val is up and down. 
-    activation_type= 'relu' or lrelu with 0.001
-    activation_params=dict()
-    conv_params=dict(kernel_size=3, stride=1, padding=1)
-    pooling_params=dict(kernel_size=2)
-    pooling_type='max' 
-    lr=0.001
-    reg=0.001
-    optimizer = torch.optim.SGD(params=model.parameters(),nesterov=True,lr=lr,weight_decay=reg, momentum = 0.99)
-    """
-    
-    
     #hp
-    activation_type= 'lrelu'
-    activation_params=dict(negative_slope=0.001)
-    #activation_type= 'relu'
-    #activation_params=dict()
-    conv_params=dict(kernel_size=3, stride=1, padding=1)
-    pooling_params=dict(kernel_size=2)
-    pooling_type='max' 
-    #pooling_type='avg'
-    lr=0.001
-    reg=0.001
-    batchnorm: bool = False
-    dropout: float = 0.0
-    
+    res_params={}
     if model_type=="resnet":
-        model= ArgMaxClassifier(model_cls(in_size= x0.shape, out_classes=10, channels=channels, 
+        res_params=dict(batchnorm = batchnorm, dropout = dropout, bottleneck=bottleneck)
+ 
+    
+    model= model_cls(in_size= x0.shape, out_classes=10, channels=channels, 
                             pool_every=pool_every, hidden_dims=hidden_dims, conv_params=conv_params, 
                             activation_type=activation_type, activation_params=activation_params, 
-                            pooling_type= pooling_type, pooling_params=pooling_params, 
-                            batchnorm = True, dropout = 0.1, bottleneck=True))
-
-    else:
-        model = ArgMaxClassifier(model_cls(in_size= x0.shape, out_classes=10, channels=channels, 
-                            pool_every=pool_every, hidden_dims=hidden_dims, conv_params=conv_params, 
-                            activation_type=activation_type, activation_params=activation_params, 
-                            pooling_type= pooling_type, pooling_params=pooling_params))
+                            pooling_type= pooling_type, pooling_params=pooling_params, **res_params
+                            )
     model.to(device)
+    classifier= ArgMaxClassifier(model=model)
 
-    #hp
     loss_fn = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(params=model.parameters(),nesterov=True,lr=lr,weight_decay=reg, momentum = 0.99)
-    
-    
+    optimizer = torch.optim.Adam(params=model.parameters(),lr=lr,weight_decay=reg)
+    #optimizer = torch.optim.SGD(params=model.parameters(),nesterov=True,lr=lr,weight_decay=reg, momentum = momentum)   
+
     #train
-    trainer = ClassifierTrainer(model, loss_fn, optimizer, device)
+    trainer = ClassifierTrainer(classifier, loss_fn, optimizer, device)
     fit_res = trainer.fit(train_dl, test_dl, num_epochs=epochs, early_stopping=early_stopping)
     # ========================
 
