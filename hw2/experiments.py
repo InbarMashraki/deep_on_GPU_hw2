@@ -137,8 +137,18 @@ def cnn_experiment(
     #pooling_type='avg'
     lr=0.001
     reg=0.001
+    batchnorm: bool = False
+    dropout: float = 0.0
     
-    model = ArgMaxClassifier(model_cls(in_size= x0.shape, out_classes=10, channels=channels, 
+    if model_type=="resnet":
+        model= ArgMaxClassifier(model_cls(in_size= x0.shape, out_classes=10, channels=channels, 
+                            pool_every=pool_every, hidden_dims=hidden_dims, conv_params=conv_params, 
+                            activation_type=activation_type, activation_params=activation_params, 
+                            pooling_type= pooling_type, pooling_params=pooling_params, 
+                            batchnorm = True, dropout = 0.1, bottleneck=True))
+
+    else:
+        model = ArgMaxClassifier(model_cls(in_size= x0.shape, out_classes=10, channels=channels, 
                             pool_every=pool_every, hidden_dims=hidden_dims, conv_params=conv_params, 
                             activation_type=activation_type, activation_params=activation_params, 
                             pooling_type= pooling_type, pooling_params=pooling_params))
