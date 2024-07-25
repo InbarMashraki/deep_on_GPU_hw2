@@ -76,7 +76,7 @@ def cnn_experiment(
     conv_params=dict(kernel_size=3, stride=1, padding=1),
     pooling_params=dict(kernel_size=2),
     pooling_type='max',
-    batchnorm = True, dropout = 0.1, bottleneck=False,
+    batchnorm = True, dropout = 0.2, bottleneck=False,
     momentum=0.99,
     **kw,
 ):

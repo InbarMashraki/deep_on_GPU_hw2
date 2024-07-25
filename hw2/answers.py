@@ -261,14 +261,94 @@ def part4_optim_hp():
 
 part4_q1 = r"""
 **Your answer:**
+1. Number of Parameters
+- Regular Block: The regular block has two $3 \times 3$ convolutional layers. Input size: 64d, Output size: 64d for both layers.
+
+the number of parameters for each of the $3 \times 3$ Conv Layers: (3 * 3 * 64 + 1) * 64 = 576 * 64 = 36864. 
+
+there for the number of parameters is 36864 * 2 = 73728
+
+the shortcut is the identity function and has no parameters.
 
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+- Bottleneck Block: The bottleneck block has three convolutional layers: $1 \times 1$, $3 \times 3$, and $1 \times 1$. size: 256, Output size: 256, with intermediate size: 64.
+
+First $1 \times 1$ Conv Layer : (1 * 1 * 256 + 1) * 64 = 256 * 64 + 64 = 16448
+
+Second $3 \times 3$ Conv Layer : (3* 3 * 64 + 1) * 64 = 576 * 64 = 36864
+
+Third $1 \times 1$ Conv Layer : (1 * 1 * 64 + 1) * 256 = 64 * 256 + 256 = 16640
+
+there for the number of parameters is 16448 + 36864 + 16640 = 69952
+
+comparison- The bottleneck block has significantly more parameters (35072) compared to the regular block (4608).
+
+2. Number of Floating Point Operations
+
+since we are saving the spacial dimantions of the input by strides and padding, for all the convolutions layers, both in the regular block and the bottleneck one, 
+the input size is H * W * (in_channels)- where W,H are the input width and height.
+For each output pixel, the convolution operation is applied, involving multiplications and additions over all input channels and the entire kernel size.
+So, for a given convolutional layer, the FLOPs can be calculated as: H_{out}* W_{out}* C_{out} \times (k * k * C_{in})
+
+- Regular Block: for both convolutional layers in the main path, the input size and the output size is (H,W,64). 
+Also for both of the convolutional layers, the kernel size is 3 \times 3.
+
+So, the number of Floating Point Operations is 2 * (H * W * 64) *(3 * 3 * 64) = H * W * 73728
+
+- Bottleneck Block:
+
+First $1 \times 1$ Conv Layer : (H * W * 64) * (1 * 1 * 256)= H * W * 16384
+
+Second $3 \times 3$ Conv Layer : (H * W * 64) * (3 * 3 * 64)= H * W * 36864
+
+Third $1 \times 1$ Conv Layer : (H * W * 256) * (1 * 1 * 64)= H * W * 16384
+
+So, the number of Floating Point Operations is 2 * H * W * 16384 + H * W * 36864 = H * W * 69632 
+
+Comparison- The bottleneck block requires fewer FLOPs (69632 per spatial location) compared to the regular block (73728 per spatial location),
+making it more efficient in terms of computation.
+
+3. Ability to combine the input: 
+
+(1) spatially (within feature maps)
+- Regular Block:
+Each $3 \times 3$ convolution has a receptive field of $3 \times 3$ pixels. When stacked, the two $3 \times 3$ convolutions effectively have a receptive field of $5 \times 5$ pixels,because the second layer can see a bit further into the input through the output of the first layer.
+This means that each output pixel has access to information from a $5 \times 5$ region of the input, allowing for effective spatial feature extraction and local pattern recognition. The shortcut identity path bypasses the convolutions, allowing the network to combine learned spatial features with the original input spatial features directly, preserving important spatial information.
+
+- Bottleneck Block:
+The $3 \times 3$ convolution in the middle has a receptive field of $3 \times 3$ pixels. The overall receptive field of the bottleneck block is effectively still $3 \times 3$, because the $1 \times 1$ convolutions do not increase the spatial receptive field. However, the $1 \times 1$ convolutions before and after the $3 \times 3$ layer allow for more flexible spatial feature extraction by projecting the high-dimensional input (256 channels) down to a lower-dimensional space (64 channels) and then back up.
+The $1 \times 1$ convolution in the shortcut path matches the dimensions of the original and learned features, allowing them to be combined effectively and preserving spatial information.
+
+(2) across feature maps
+- Regular Block:
+
+First Convolutional Layer: Each $3 \times 3$ filter processes all 64 input channels to produce one output channel. This means each output channel combines information from all 64 input channels through local $3 \times 3$ regions.
+With 64 filters, this layer produces 64 output channels.
+The ReLU activation applied after this convolution introduces non-linearity, allowing the network to model more complex relationships. 
+
+Second Convolutional Layer:
+This layer behave in the exact same way as the first layer.
+
+So, the regular block allows for combination of channel information at each layer, with each convolution combining information from all input channels. 
+However, since the number of input and output channels is the same, the ability to mix and combine information across channels is somewhat limited.
+
+The shortcut identity path provides a direct channel for the original feature maps to be added to the output, which helps in preserving and integrating feature information across channels.
+
+- Bottleneck Block:
+
+First $1 \times 1$ Convolutional Layer:
+Reduces the dimensionality from 256 input channels to 64 channels. Each output channel is a combination of all 256 input channels.
+The ReLU activation applied here introduces non-linearity, allowing for complex mappings from the high-dimensional input space to the lower-dimensional space.
+
+Second $3 \times 3$ Convolutional Layer:
+Operates on the 64 intermediate channels, combining information across these channels with a local receptive field of $3 \times 3$ pixels.
+
+Third $1 \times 1$ Convolutional Layer:
+Expands the dimensionality back to 256 channels. Each output channel is a combination of the 64 intermediate channels.
+
+So, The bottleneck block enhances the ability to combine information across channels by using $1 \times 1$ convolutions, which provide a more flexible and efficient channel-wise mixing. 
+
+The shortcut identity path matches the dimensionality of the output from the main path, allowing the combination of original high-dimensional features with the refined features, improving feature integration across channels.
 
 """
 

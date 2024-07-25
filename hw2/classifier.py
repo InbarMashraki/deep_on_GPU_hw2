@@ -48,7 +48,7 @@ class Classifier(nn.Module, ABC):
         # TODO: Calcualtes class scores for each sample.
         # ====== YOUR CODE: ======
         z=self.forward(x)
-        self.y_pred= z
+        
         # ========================
         return self.predict_proba_scores(z)
 
@@ -60,9 +60,8 @@ class Classifier(nn.Module, ABC):
         """
         # TODO: Calculate class probabilities for the input.
         # ====== YOUR CODE: ======
-        sum= z.sum(dim=1, keepdim=True)
-        prob= z/sum
-        return prob
+        return torch.nn.functional.softmax(z,dim=1)
+
         # ========================
 
     def classify(self, x: Tensor) -> Tensor:
@@ -72,7 +71,7 @@ class Classifier(nn.Module, ABC):
         """
         # Calculate the class probabilities
         y_proba = self.predict_proba(x)
-        self.y_proba= y_proba
+        
         # Use implementation-specific helper to assign a class based on the
         # probabilities.
         return self._classify(y_proba)

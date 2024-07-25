@@ -272,14 +272,15 @@ class ClassifierTrainer(Trainer):
         #  - Classify and calculate number of correct predictions
         # ====== YOUR CODE: ======
         self.optimizer.zero_grad()
-        argmax_c= self.model.classify(X)
-        y_pred= self.model.y_pred
+        
+        y_pred= self.model.forward(X)
         loss = self.loss_fn(y_pred, y)
         batch_loss= loss.item()
+        
+        num_correct = torch.sum((y==torch.argmax(y_pred,dim=1)).int()).item()
+
         loss.backward()
         self.optimizer.step()
-
-        num_correct = (argmax_c == y).sum().item()
         # ========================
 
         return BatchResult(batch_loss, num_correct)
@@ -299,11 +300,11 @@ class ClassifierTrainer(Trainer):
             #  - Forward pass
             #  - Calculate number of correct predictions
             # ====== YOUR CODE: ======
-            argmax_c= self.model.classify(X)
-            y_pred= self.model.y_pred
-            batch_loss = self.loss_fn(y_pred, y).item()
+            y_pred = self.model.forward(X)
+            loss = self.loss_fn(y_pred,y)
 
-            num_correct = (argmax_c == y).sum().item()
+            batch_loss = loss.item()
+            num_correct = torch.sum((y==torch.argmax(y_pred,dim=1)).int()).item()
             # ========================
 
         return BatchResult(batch_loss, num_correct)
