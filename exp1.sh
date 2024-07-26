@@ -5,10 +5,10 @@ set -e
 NUM_NODES=1
 NUM_CORES=2
 NUM_GPUS=1
-MAIL_USER="galkesten@campus.technion.ac.il"
+MAIL_USER="inbar.m@campus.technion.ac.il"
 MAIL_TYPE=ALL # Valid values are NONE, BEGIN, END, FAIL, REQUEUE, ALL
 # Define the output directory
-OUTPUT_DIR="/home/galkesten/CS236781/Homework2/out"
+OUTPUT_DIR="/home/inbar.m/hw/deep_on_gpu_hw2/out"
 
 # Create the output directory if it doesn't exist
 mkdir -p $OUTPUT_DIR
@@ -37,7 +37,7 @@ echo "*** SLURM BATCH JOB '${RUN_NAME}' STARTING ***"
 
 # Setup the conda env
 source \$HOME/miniconda3/etc/profile.d/conda.sh
-conda activate cs236781-hw2-git
+conda activate cs236781-hw
 
 # Run the experiment
 python -m hw2.experiments run-exp -n "exp1_1" \
@@ -46,7 +46,7 @@ python -m hw2.experiments run-exp -n "exp1_1" \
     --filters-per-layer ${K} --layers-per-block ${L} \
     --pool-every 4 --hidden-dims 128\
     --lr 1e-4 --reg 1e-4 --model-type cnn \
-    --out-dir /home/galkesten/CS236781/Homework2/results
+    --out-dir /home/inbar.m/hw/deep_on_gpu_hw2/results
 
 echo "*** SLURM BATCH JOB '${RUN_NAME}' DONE ***"
 EOF
