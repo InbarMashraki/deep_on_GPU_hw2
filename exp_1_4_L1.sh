@@ -47,7 +47,7 @@ python -m hw2.experiments run-exp -n "exp1_4" \
     --epochs 30 --early-stopping 3 \
     --filters-per-layer ${K[@]} --layers-per-block ${L} \
     --pool-every 4 --hidden-dims 128 \
-    --lr 1e-4 --reg 1e-4 --model-type ResNet \
+    --lr 1e-4 --reg 1e-4 --model-type resnet \
     --out-dir /home/inbar.m/hw/deep_on_gpu_hw2/results
 
 echo "*** SLURM BATCH JOB '${RUN_NAME}' DONE ***"
