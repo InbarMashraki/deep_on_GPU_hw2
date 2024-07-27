@@ -21,7 +21,10 @@ run_exp_1_4_L1(){
 
   for L in "${L[@]}"; do
       RUN_NAME="exp1_4_L${L}_K32"
-      
+
+      # Debugging statement
+      echo "Submitting job with RUN_NAME=${RUN_NAME}"
+
       sbatch \
         -N $NUM_NODES \
         -c $NUM_CORES \
@@ -49,6 +52,9 @@ python -m hw2.experiments run-exp -n "exp1_4" \
 
 echo "*** SLURM BATCH JOB '${RUN_NAME}' DONE ***"
 EOF
+
+      # Debugging statement
+      echo "Job ${RUN_NAME} submitted."
   done
 }
 
