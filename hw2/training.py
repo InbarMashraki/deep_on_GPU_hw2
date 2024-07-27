@@ -86,11 +86,11 @@ class Trainer(abc.ABC):
             kw["verbose"] = verbose
             actual_num_epochs += 1
             train_result = self.train_epoch(dl_train, **kw)
-            train_loss += train_result.losses
+            train_loss.append(sum(train_result.losses) / len(dl_train.batch_sampler))
             train_acc.append(train_result.accuracy)
 
             test_result = self.test_epoch(dl_test, **kw)
-            test_loss += test_result.losses
+            test_loss.append(sum(test_result.losses) / len(dl_test.batch_sampler))
             test_acc.append(test_result.accuracy)
             # ========================
 
@@ -273,13 +273,14 @@ class ClassifierTrainer(Trainer):
         # ====== YOUR CODE: ======
         self.optimizer.zero_grad()
         
-        y_pred= self.model.forward(X)
-        loss = self.loss_fn(y_pred, y)
-        batch_loss= loss.item()
+        y_hat= self.model.forward(X)
+        loss = self.loss_fn(y_hat, y)
         
-        num_correct = torch.sum((y==torch.argmax(y_pred,dim=1)).int()).item()
+        pred= self.model.classify(X)
+        num_correct = torch.sum((y==pred).float()).item()
 
         loss.backward()
+        batch_loss= loss.item()
         self.optimizer.step()
         # ========================
 
@@ -300,11 +301,11 @@ class ClassifierTrainer(Trainer):
             #  - Forward pass
             #  - Calculate number of correct predictions
             # ====== YOUR CODE: ======
-            y_pred = self.model.forward(X)
-            loss = self.loss_fn(y_pred,y)
-
-            batch_loss = loss.item()
-            num_correct = torch.sum((y==torch.argmax(y_pred,dim=1)).int()).item()
+            y_hat = self.model.forward(X)
+            loss = self.loss_fn(y_hat,y)
+            batch_loss= loss.item()
+            pred= self.model.classify(X)
+            num_correct = torch.sum((y==pred).float()).item()
             # ========================
 
         return BatchResult(batch_loss, num_correct)

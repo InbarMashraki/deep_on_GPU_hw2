@@ -77,7 +77,7 @@ def cnn_experiment(
     pooling_params=dict(kernel_size=2),
     pooling_type='max',
     batchnorm = True, dropout = 0.2, bottleneck=False,
-    momentum=0.99,
+    
     **kw,
 ):
     """
@@ -136,7 +136,6 @@ def cnn_experiment(
 
     loss_fn = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(params=model.parameters(),lr=lr,weight_decay=reg)
-    #optimizer = torch.optim.SGD(params=model.parameters(),nesterov=True,lr=lr,weight_decay=reg, momentum = momentum)   
 
     #train
     trainer = ClassifierTrainer(classifier, loss_fn, optimizer, device)
