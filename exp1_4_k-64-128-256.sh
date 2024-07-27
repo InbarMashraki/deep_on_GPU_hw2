@@ -21,7 +21,7 @@ run_exp_1_4(){
   # Loop through each configuration and submit the experiment
 
   for L in "${LS[@]}"; do
-      RUN_NAME="exp1_4_${L}_K${K[0]}-${K[1]}-${K[2]}"
+      RUN_NAME="exp1_4_${L}_K64-128-256"
       
       sbatch \
         -N $NUM_NODES \
