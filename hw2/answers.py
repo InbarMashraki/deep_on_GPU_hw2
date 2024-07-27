@@ -184,57 +184,71 @@ def part3_optim_hp():
 
 
 part3_q1 = r"""
-**Your answer:**
 
+High optimization error refers to the model's poor performance on training data, indicating that it hasn't fit the data well.
+Optimization error arises often due to factors like inadequate training duration, an inappropriate learning rate, or poor optimization algorithms. 
+This error is about how well we can minimize the loss function during training.
+To reduce this error, we can adjust the learning rate maualy or use techniques like learning rate decay. 
+We can also ensure the model is trained for a sufficient number of epochs. 
+Still we need to be carefull and apply regularization techniques like dropout, weight decay, or batch normalization to prevent overfitting to the training data.
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+High Generalization Error indicates that the model performs well on training data but poorly on unseen test data.  
+This is often due to overfitting but can also be caused by insufficient training data diversity or a complex model relative to the amount of data.
+To address this, we can increase the diversity of the training data through augmentation techniques, which can help the model learn more general features.
+We can also apply regularization methods such as dropout or early stopping to prevent overfitting. 
+Additionally, simplifying the model or using techniques like cross-validation to find better hyper-parameters can also ensure better generalization to new data.
 
+High approximation error occurs when the model is too simple to capture the underlying data patterns, often due to inadequate network architecture or insufficient feature representation,
+leading to underfitting. This error reflects how well the model approximates the true data distribution.
+To address this, we can increase the model's complexity by adding more layers or neurons, which allows it to capture more complex patterns. 
+Enhancing feature representation or using advanced models, such as adjusting the receptive field in convolutional layers by increasing the kernel size, can also help. 
+Experimenting with different architectures, including deeper networks or more neurons per layer, can improve the model's ability to capture more features and perform better on the training data.
 """
 
 part3_q2 = r"""
-**Your answer:**
 
+Higher False Positive Rate (FPR):
+This occurs when the classifier is set to be very sensitive to identify positive cases, like in a rare disease screening where we want to ensure no cases are missed, even if it means incorrectly labeling some healthy individuals as positive.
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+Higher False Negative Rate (FNR): 
+This happens when the classifier is more cautious to avoid false positives, such as in spam filtering where the priority is to avoid misclassifying important emails as spam, even if it means some spam emails are missed.
 """
 
 part3_q3 = r"""
-**Your answer:**
+The ROC (Receiver Operating Characteristic) curve is a graphical representation used to evaluate the performance of a binary classification model. 
+It plots the True Positive Rate (TPR) against the False Positive Rate (FPR) at various threshold settings.
+
+Scenario 1: Non-Lethal Symptoms
+Sinece in this case, the person with the disease will develop non-lethal symptoms that confirm the diagnosis before treatment is needed, the primary focus is to minimize
+ the cost and risks associated with further testing. 
+
+In this scenario, it would be wise to Handle positive cases as follows:
+For those flagged as positive by the low-cost screening, consider waiting for non-lethal symptoms to appear before proceeding with the high-risk, 
+high-cost confirmatory tests. This approach helps reduce unnecessary high-cost tests while still ensuring that the disease will be confirmed when symptoms develop.
+
+If it is important to detect the sick individuals early anyways, our focus shifts towards minimizing the number of unnecessary high-risk, high-cost follow-up tests, which relates to 
+managing the False Positive Rate. So we would choose a point in the ROC curve with a low FPR. 
+This ensures that fewer individuals are incorrectly classified as sick, thus reducing the number of people sent for unnecessary expensive and risky tests.
 
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+Scenario 2: High Risk of Death
+Here, the disease is life-threatening if not detected early, and the expensive tests are the only method to confirm the diagnosis. Given this situation:
+
+It is crucial to minimize FNR because missing a true case could result in a high risk of death. The cost and risk of the follow-up tests are secondary to ensuring that no critical cases
+are missed. We would choose a point on the ROC curve that emphasizes a low FNR, even if it means a higher FPR. 
+The priority is to catch all possible cases early, minimizing the risk of death, even though it might lead to more expensive follow-up tests 
+but to a point that balances the high-risk to healthy patient that was tested positive.
 
 """
 
 
 part3_q4 = r"""
-**Your answer:**
-
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+Using a Multi-Layer Perceptron (MLP) for classifying the sentiment of a sentence is not ideal because MLPs treat each word independently and do not capture the sequential dependencies and
+context crucial for understanding sentiment. In addition, MLPs require a fixed input size, leading to inefficiencies and potential loss of information for variable-length sentences.
+More over, sentiment classification relies on the order and relationship of words, which MLPs fail to handle effectively. 
+Models like RNNs, LSTMs, and Transformers are better suited as they are designed to process sequential data, capturing the necessary temporal and contextual information for accurat sentiment analysis.
 """
+
 # ==============
 # Part 4 (CNN) answers
 
@@ -385,15 +399,21 @@ An equation: $e^{i\pi} -1 = 0$
 """
 
 part5_q3 = r"""
-**Your answer:**
+In this experiment, we tested the effect of varying the number of layers (L) in our model while keeping the number of convolutional filters per layer (K) constant. 
+Specifically, we conducted three runs with the following configurations:
 
+Run 1: L=2, K=[64, 128] (named exp1_3_L2_K64-128)
+Run 2: L=3, K=[64, 128] (named exp1_3_L3_K64-128)
+Run 3: L=4, K=[64, 128] (named exp1_3_L4_K64-128)
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+Training configuration worth mentioning:
+Learning rate (lr): 0.0001
+Weight decay (reg): 0.0001
+Early stopping: 2 epochs
+Dropout: 0.3 
+
+Training plots:
+Training Accuracy: All three runs achieved a training accuracy of around 90%.
 
 """
 

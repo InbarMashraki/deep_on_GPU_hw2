@@ -2,6 +2,7 @@
 
 # Ensure the script exits if any command fails
 set -e
+
 NUM_NODES=1
 NUM_CORES=2
 NUM_GPUS=1
@@ -13,14 +14,14 @@ OUTPUT_DIR="/home/inbar.m/hw/deep_on_gpu_hw2/out"
 # Create the output directory if it doesn't exist
 mkdir -p $OUTPUT_DIR
 
-# Function to run experiment 1.4
-run_exp_1_4(){
+# Function to run experiment 1.4 for K=(64 128 256) and varying L
+run_exp_1_4_L2(){
   K=(64 128 256)
-  LS=(2 4 8)
-  # Loop through each configuration and submit the experiment
+  L=(2 4 8)
 
-  for L in "${LS[@]}"; do
-      RUN_NAME="exp1_4_${L}_K64-128-256"
+  for L in "${L[@]}"; do
+      K_STRING=$(IFS="-" ; echo "${K[*]}")
+      RUN_NAME="exp1_4_L${L}_K${K_STRING}"
       
       sbatch \
         -N $NUM_NODES \
@@ -49,9 +50,8 @@ python -m hw2.experiments run-exp -n "exp1_4" \
 
 echo "*** SLURM BATCH JOB '${RUN_NAME}' DONE ***"
 EOF
-
   done
 }
 
-# Call the function to run experiment 1.4
-run_exp_1_4
+# Call the function to run experiment 1.4 for L2
+run_exp_1_4_L2
