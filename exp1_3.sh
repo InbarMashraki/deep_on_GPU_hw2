@@ -14,7 +14,7 @@ OUTPUT_DIR="/home/inbar.m/hw/deep_on_gpu_hw2/out"
 mkdir -p $OUTPUT_DIR
 
 
-# Function to run experiment 1.1
+# Function to run experiment 1.3
 run_exp_1_3(){
   K=(64 128)
   LS=(2 3 4)
@@ -22,7 +22,7 @@ run_exp_1_3(){
 
   for L in "${LS[@]}"; do
       RUN_NAME="exp1_3_${L}_K64-128"
-      
+
       sbatch \
         -N $NUM_NODES \
         -c $NUM_CORES \
@@ -32,12 +32,13 @@ run_exp_1_3(){
         --mail-type $MAIL_TYPE \
         -o "${OUTPUT_DIR}/${RUN_NAME}.out" \
         <<EOF
+
 #!/bin/bash
 echo "*** SLURM BATCH JOB '${RUN_NAME}' STARTING ***"
 
 # Setup the conda env
 source \$HOME/miniconda3/etc/profile.d/conda.sh
-conda activate cs236781-hw
+conda activate cs236781-hw2-git
 
 # Run the experiment
 python -m hw2.experiments run-exp -n "exp1_3" \
@@ -54,5 +55,5 @@ EOF
   done
 }
 
-# Call the function to run experiment 1.1
+# Call the function to run experiment 1.3
 run_exp_1_3
