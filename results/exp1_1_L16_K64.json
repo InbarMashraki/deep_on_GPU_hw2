@@ -1,17 +1,17 @@
 {
   "config": {
     "run_name": "exp1_1",
-    "out_dir": "/home/yonathanw/CS236781/Homework2/results",
+    "out_dir": "/home/inbar.m/hw/deep_on_gpu_hw2/results",
     "seed": 42,
     "device": null,
-    "bs_train": 64,
-    "bs_test": 64,
+    "bs_train": 32,
+    "bs_test": 32,
     "batches": 1500,
-    "epochs": 20,
-    "early_stopping": 5,
+    "epochs": 30,
+    "early_stopping": 3,
     "checkpoints": null,
-    "lr": 0.001,
-    "reg": 0.003,
+    "lr": 0.0001,
+    "reg": 0.0001,
     "filters_per_layer": [
       64
     ],
@@ -32,41 +32,32 @@
     },
     "pooling_type": "max",
     "batchnorm": true,
-    "dropout": 0.2,
+    "dropout": 0.0,
     "bottleneck": false,
-    "momentum": 0.99,
     "kw": {},
     "layers_per_block": 16
   },
   "results": {
-    "num_epochs": 6,
+    "num_epochs": 4,
     "train_loss": [
-      2.3029796555828863,
-      2.302798727894073,
-      2.302721961989732,
-      2.302758060452883,
-      2.302733495412275,
-      2.302712019752054
+      2.3029900550537206,
+      2.302770520507412,
+      2.302724091883127,
+      2.3027391749471713
     ],
     "train_acc": [
-      9.97,
-      9.818,
-      9.89,
-      9.796,
-      9.694,
-      9.848
+      9.872,
+      9.734,
+      9.806,
+      9.676
     ],
     "test_loss": [
-      2.3026405474182905,
-      2.3026166979674323,
-      2.3025950504716035,
-      2.302599487790636,
-      2.3026074543120756,
-      2.3026161163475862
+      2.3026324285866733,
+      2.302613919535384,
+      2.302622097368819,
+      2.302593454385337
     ],
     "test_acc": [
-      10.0,
-      10.0,
       10.0,
       10.0,
       10.0,

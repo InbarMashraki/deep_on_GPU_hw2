@@ -18,6 +18,7 @@ mkdir -p $OUTPUT_DIR
 run_exp_1_4_L2(){
   K=(64 128 256)
   L=(2 4 8)
+  HD=(512 256)
 
   for L in "${L[@]}"; do
       K_STRING=$(IFS="-" ; echo "${K[*]}")
@@ -41,11 +42,11 @@ conda activate cs236781-hw
 
 # Run the experiment
 python -m hw2.experiments run-exp -n "exp1_4" \
-    --seed 42 --bs-train 32 --batches 1500 --bs-test 32 \
+    --seed 42 --bs-train 64 --batches 1500 --bs-test 64 \
     --epochs 30 --early-stopping 3 \
     --filters-per-layer ${K[@]} --layers-per-block ${L} \
-    --pool-every 4 --hidden-dims 128 \
-    --lr 1e-4 --reg 1e-4 --model-type resnet \
+    --pool-every 8 --hidden-dims ${HD[@]} \
+    --lr 1e-4 --reg 1e-4 --dropout 0.3 --model-type resnet \
     --out-dir /home/inbar.m/hw/deep_on_gpu_hw2/results
 
 echo "*** SLURM BATCH JOB '${RUN_NAME}' DONE ***"

@@ -40,10 +40,10 @@ conda activate cs236781-hw2-git
 # Run the experiment
 python -m hw2.experiments run-exp -n "exp1_3" \
     --seed 42 --bs-train 32 --batches 1500 --bs-test 32 \
-    --epochs 30 --early-stopping 3 \
+    --epochs 30 --early-stopping 2 \
     --filters-per-layer ${K[@]} --layers-per-block ${L} \
     --pool-every 4 --hidden-dims 128 \
-    --lr 1e-4 --reg 1e-4 --model-type cnn \
+    --lr 1e-4 --reg 1e-4 --dropout 0.3 --model-type cnn \
     --out-dir /home/inbar.m/hw/deep_on_gpu_hw2/results
 
 echo "*** SLURM BATCH JOB '${RUN_NAME}' DONE ***"

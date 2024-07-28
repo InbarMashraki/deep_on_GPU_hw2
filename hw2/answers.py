@@ -110,11 +110,11 @@ def part2_dropout_hp():
 part2_q1 = r"""
 1. The dropout vs. no-dropout graphs definitely matches our expectations. Generally we know that dropout is technique used to avoid overfitting and create a more robust model that will handle new samples better, more generalized. This is exactly what we see in the graphs, the no-dropout model reaches almost 80% accuracy on train set while only 23% on the test - this is clearly an overfitted model, on the other hand we can see both dropout models reached worse training accuracy but much much  better test accuracy - meaning those model were able to generalize the problem better, as we expected from what we know about dropout.
 
-2. As we explained before, dropout is used to prevent overfitting, we can see that between the 2 dropout models, the one with the low-dropout was a bit overfitted (54 on train, 27.5 on test) while the hit-dropout was not overfitted at all (35 on train, 30 on test). This matches the assumption that dropout prevents overfitting.
+2. As we explained before, dropout is used to prevent overfitting, we can see that between the 2 dropout models, the one with the low-dropout was a bit overfitted (54 on train, 27.5 on test) while the high-dropout was not overfitted at all (35 on train, 30 on test). This matches the assumption that dropout prevents overfitting.
 """
 
 part2_q2 = r"""
-It is possible for the test loss to increase while the test accuracy also increase when using cross entrophy loss, this is due to the fact that cross entropy loss is sensitive to the confidence of the model's predictions - it penalizes incorrect predictions more heavily if the model is very confident in its wrong prediction. During training the model might be very insecure on predictions and also make a lot of wrong predictions, this will cause bad accuracy and medium (not so large) loss, then, after some learning the model might get more confident on predictions (both right and wrong ones) and also have some more correct predictions, this will cause better accuracy that from the beginning bu t may also cause worse (larger) accuracy. In that case both loss and accuracy will grow increase.
+It is possible for the test loss to increase while the test accuracy also increase when using cross entrophy loss, this is due to the fact that cross entropy loss is sensitive to the confidence of the model's predictions - it penalizes incorrect predictions more heavily if the model is very confident in its wrong prediction. During training the model might be very insecure on predictions and also make a lot of wrong predictions, this will cause bad accuracy and medium (not so large) loss, then, after some learning the model might get more confident on predictions (both right and wrong ones) and also have some more correct predictions, this will cause better accuracy commpered to the beginning but may also cause worse (larger) accuracy. In that case both loss and accuracy will increase.
 """
 
 part2_q3 = r"""
@@ -122,7 +122,7 @@ part2_q3 = r"""
 Gradient descent is an iterative optimization algorithm that iteratively update function parameters on the opposite direction of the gradient in order to converge to some local minima of the function, generally it doesn't specify how the gradient is calculated but just mention its usage.\
 On the other hand, back-propagation is an algorithm that computes the gradient of a function (in the case of neural network - the cost function). Its implementation is based on the chain rule and the computational graph, generally in back-propagation we move backwards in the computational graph and in each step calculating relevant gradient and multiplying (according to chain rule). Back-propagation allows efficient gradient calculation and is used in most on the neural networks implementations.
 
-2. Both gradient descent and stochastic gradient descent are algorithms that use the cost function gradients to change the parameters in order to reach local minima.
+2. Both gradient descent and stochastic gradient descent are algorithms that use the cost function gradients to change the parameters in order to reach the minima.
 In deep learning the cost function takes points from the dataset as arguments for calculation, in GD, each iteration we take the entire dataset and calculate the average of the cost function and gradient over it. On the other hand in SGD we take a random sample out of the dataset and do the gradient calculation over it.
 After initializing some values to the functions' parameters, GD is deterministic since it alway takes the entire dataset, while SGD isn't since it takes a different sample every iteration. This causes GD to be more predictable and converge more smoothly while SGD may lack those. This may also cause GD to be a bit more accurate since it is more likely to reach the actual local minima than SGD.
 On the other hand, GD is obviously much slower to calculate, and when working on large dataset may not be realistic for usage while each iteration of SGD is very fast to compute.
@@ -137,7 +137,7 @@ part2_q4 = r"""
 A. Let us use forward mode AD to calculate $\nabla f(x_0)$:
 As defined by forward mode AD, we will use the chain rule, starting from the beginning of the computational graph. \
 As we have seen in class, let $v_i$ be the $i$th node in the computational graph, we first initialize $v_0.grad=1$ then the step is: $v_{j+1}.grad ← f'_{j+1}(v_j.val)\cdot v_j.grad$,
-since we can get all derivatives of every $f_i$ in $O(1)$ each steps is done by $O(1)$, also all we need to save in memory is $v_{j+1}.grad$, therefor the memory complexity of this calculation is $O(1)$.
+since we can get all derivatives of every $f_i$ in $O(1)$ each steps is done by $O(1)$, also all we need to save in memory is $v_{j+1}.grad$, therefor the memory complexity of this calculation is $O(1)$ for each node.
 
 B. Let us use reverse mode AD (a.k.a back-propagation) to calculate $\nabla f(x_0)$:
 As defined by reverse mode AD, we will use the chain rule, starting from the end of the computational graph. \
@@ -378,9 +378,13 @@ The shortcut identity path matches the dimensionality of the output from the mai
 # Part 5 (CNN Experiments) answers
 
 part5_q1 = r"""
-Generally the results of experiment 1.1 were successful for L=2,4, in both cases we managed to get test accuracy of 65-70%. \
-1. We can see in our experiments that L=4 bring the best empirical results - both with K=32 and K=64. We can see in the graphs that both L=4 and L=2 learn the data and increase accuracy but in L=2 the test accuracy converges before the L=4 models, that may be due to its limitations, with small amount of layers the model is weaker and while able to learn, its limits are greater and that's probably why L=4 was able to increase accuracy for a longer time and to a better result. On the other hand when the depth got larger - L=8,16, the models weren't able to learn at all, which we explain right below.
-2. when L=8,16, the models weren't able to learn, this might have been due to the vanishing gradients problem - the more layers there are in the network, the more multiplications are done due to chain rule in order to calculate the gradient, and if some of the values in the way are small, the gradients will vanish and the model parameters will not move. There are some possible solutions for that issue, one can be batch normalization - it will tune the values of the parameters in order to stabilize the learning process and improve the gradient flow. We can also use residual networks, as we learned in class res nets try to solve this issue by creating shortcuts in order to strengthen the signal and avoid gradient vanishing in the backpropagaion process.
+In this experiment  we train diffrent models with different depth and kernel size. 
+\\
+Generally the results of experiment 1.1 were successful for L=2,4, in both cases we managed to get test accuracy of 65-70% for both k=32 and K=64. \\
+1. We can see in our experiments that L=4 bring the best empirical results - both with K=32 and K=64. 
+We can see in the graphs that both L=4 and L=2 learn the data and increase accuracy but in L=2 the test accuracy converges before the L=4 models, that may be due to its limitations, with small amount of layers the model is weaker and while able to learn, its limits are greater and that's probably why L=4 was able to increase accuracy for a longer time and to a better result.
+On the other hand when the depth got larger - L=8,16 in the K=32 case and L=16 on the K=64 case, the models weren't able to learn at all, which we explain right below.
+2. when L=8 or 16, the models weren't able to learn, this might have been due to the vanishing gradients problem - the more layers there are in the network, the more multiplications are done due to chain rule in order to calculate the gradient, and if some of the values in the way are small, the gradients will vanish and the model parameters will not move. There are some possible solutions for that issue, one can be batch normalization - it will tune the values of the parameters in order to stabilize the learning process and improve the gradient flow. We can also use residual networks, as we learned in class res nets try to solve this issue by creating shortcuts in order to strengthen the signal and avoid gradient vanishing in the backpropagaion process. We will show this solution in 1.4 and compare the results.
 """
 
 part5_q2 = r"""
@@ -390,34 +394,48 @@ When comparing to experiments 1.1 we can see that bigger K makes the model stron
 """
 
 part5_q3 = r"""
-In this experiment, we tested the effect of varying the number of layers (L) in our model while keeping the number of convolutional filters per layer (K) constant. 
-Specifically, we conducted three runs with the following configurations:
-
-Run 1: L=2, K=[64, 128] (named exp1_3_L2_K64-128)
-Run 2: L=3, K=[64, 128] (named exp1_3_L3_K64-128)
-Run 3: L=4, K=[64, 128] (named exp1_3_L4_K64-128)
-
-Training configuration worth mentioning:
-Learning rate (lr): 0.0001
-Weight decay (reg): 0.0001
-Early stopping: 2 epochs
-Dropout: 0.3 
-
-Training plots:
-Training Accuracy: All three runs achieved a training accuracy of around 90%.
+In experiments 1.3,all three runs achieved a training accuracy of 85-90% and a test accuracy of around 65-70%. Increasing dropout helped with generalization, preventing overfitting and improving test performance. \
+However, even with early stopping, the test loss started to increase at some point, indicating that finding the right balance for early stopping is crucial to maintain test performance while avoiding a decrease in test accuracy.\
+\\
+Different filter sizes, such as [64, 128], provide varying capacities for feature extraction. Using two different K sizes means that the model can capture more varied and complex features, which can enhance its ability to generalize from the training data.
+By comaring the plots of 1.1 in L=2,K=64 case and this plot, we can see the complexity introduced by having two different filter sizes per layer can help even shallower models capture more features, leading to higher training accuracy. \
+When we tried using a higher weight decay in order to increase the generalization and test performance, models with L=4 layers struggled to learn and vanished. So, while L=4 is not considered very deep, it still requires a balanced approach to regularization.\
+\\
+With a fixed K, the models achieved approximately the same test accuracy, but training accuracy varied. The model with L=2 layers achieved the highest training accuracy, followed by L=3 and then L=4. 
+In addition, deeper models like L=4, while potentially better at capturing complex patterns, face greater challenges during training without skip connections, which can result in lower training accuracy.
+\\
+In conclusion, increasing the number of layers while keeping the number of convolutional filters constant led to varying training dynamics, with dropout and early stopping playing critical roles in preventing overfitting. The chosen filter sizes provided a balanced capacity for feature extraction, and deeper models required more nuanced tuning of learning rate and regularization to balance effective learning and generalization.
 
 """
 
 part5_q4 = r"""
-**Your answer:**
+Experiment 1.4:\\
+In this experiment, we tested the effect of skip connections using a ResNet architecture with six runs: \\
 
+K=[32] fixed with L=8,16,32 \\
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+K=[64, 128, 256] fixed with L=2,4,8 \\
+
+Results showed that with K=32, the models learned effectively and achieved around 70% test accuracy across different depths.
+For K=[64, 128, 256], the depth had a significant impact. The model with L=2 struggled to learn, achieving a 65% test accuracy. 
+As the depth increased to L=4 and L=8, test accuracy improved to around 70% and 75%, respectively. Skip connections helped mitigate the vanishing gradient problem, enabling deeper networks to learn more effectively.
+\\
+Notes about HP tuning and best parameters: \\
+- The change in hidden_dims=[512, 256] from [128] was made to enhance the capacity of the fully connected layers at the end of the ResNet convolutional layers. By increasing the hidden dimensions, the network can capture and represent more complex patterns and relationships in the data. This is particularly important when using a varied filter size configuration like [64, 128, 256], as the network processes features at a higher dimention. The larger hidden dimensions allow for better integration and interpretation of these features before the final classification, leading to improved performance.
+- The setting pool_every=8 was chosen to prevent the spatial dimensions of the feature maps from becoming too small in deeper architectures. Pooling operations reduce the size of the feature maps, and if performed too frequently, they can shrink the feature maps to a point where they lose valuable information. By spacing the pooling operations every 8 layers, the network maintains larger spatial dimensions, preserving more detailed information throughout the deeper layers of the network. This adjustment is crucial for ensuring that the deeper architectures can still learn effectively from the input data.
+- Trying to increase the reg HP decreased the test accuracy for some combination of K-L. So although in some plots, when looking at the training plot it gets to almost perfect training accuracy, becuse we need to fit the hp to all of the expirements in 1.4, we sucrifised some overffiting in several cases for higher test accuracy in others. In an ideal situation we would find the best HP for each combination discribing a different architecture and then find the best architecture for the task in hand.
+\\
+Comparison of Experiment 1.4 to 1.1 and 1.3\\
+Experiment 1.4 vs. Experiment 1.1\\
+
+In Experiment 1.1, deeper networks struggled to learn due to the vanishing gradient problem. As the depth increased, models with fixed K=32 and K=64 showed diminished learning capacity, particularly at L=16. 
+In contrast, Experiment 1.4 demonstrated that incorporating skip connections in ResNet architectures significantly improved learning in deeper networks. 
+Skip connections mitigated the vanishing gradient problem, enabling models to learn effectively even at greater depths, such as in 1.4 L=8 and L=16 for K=32, and L=4 and L=8 for K=[64, 128, 256].
+\\
+Experiment 1.3 showed high training accuracy but struggled with deeper networks (L=3, L=4) due to the lack of skip connections. In contrast, Experiment 1.4's skip connections allowed deeper models (L=4, L=8) to perform better, with higher test accuracy and more stable training.
+Larger filter sizes in 1.4 (K=[64, 128, 256]) combined with skip connections captured more features and enhanced learning, outperforming the smaller, simpler filters in 1.3. \\
+Overall, Experiment 1.4 demonstrated that skip connections and varied filter sizes significantly enhance the performance and generalization of deeper networks, addressing the limitations seen in Experiment 1.1 and 1.3.
+
 
 """
 
