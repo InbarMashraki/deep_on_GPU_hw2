@@ -276,7 +276,17 @@ def parse_cli():
         default="cnn",
         help="Which model instance to create",
     )
-
+    sp_exp.add_argument(
+        "--dropout",
+        type=float,
+        default=0.2,
+        help="Which dropout to use",
+    )
+    sp_exp.add_argument(
+        "--bottleneck",
+        default=False,
+        help="Which bottleneck to use",
+    )
     parsed = p.parse_args()
 
     if "subcmd_fn" not in parsed:

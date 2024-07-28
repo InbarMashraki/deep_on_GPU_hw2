@@ -9,28 +9,45 @@ math (delimited with $$).
 # Part 1 (Backprop) answers
 
 part1_q1 = r"""
-**Your answer:**
+1. 
+   A. To understand the shape of the jacobian of the fully connected layer with respect to x:
+  $dy/dx$
+  let us first recall the shape of each component of the fully connected layer $Y=WX$:
+- X: `N x in_features`
+- W: `in_features x out_features`
+- Y: `N x out_features` \
+  Now recall that the jacobian holds the derivatives of each output cell of $Y$ with respect to each of the input cells of $X$, therefor the shape of the jacobian will be: \
+  `N x out_features x N x in_features = 64 x 512 x 64 x 1024`.
 
+  B. The Jacobian is indeed sparse.
+  Recall the Jacobian[`i,j,u,v`] is calculated by Deriving $Y_{i,j}$ with respect to $X_{u,v}$, while $Y_{i,j}$ is affected only by the $i$th sample in batch, therefor the value of Jacobian[`i,j,u,v`] will be $0$ for each $i \ne u$, which is very common case in the Jacobian, therefor it is indeed sparse.
+  More precisely, $Y_{i,j}$ is calculated as:\
+  $Y_{i,k}=\sum_{j=1}^{in-features}x_{i,j}\cdot w_{j,k}$, we can clearly see that $Y_{i,k}$ is is built from $x_i$, therefor any derivates of  $Y_{i,k}$ with respect to $X_{u \ne i}$ will be $0$.
+  
+  As we shown, the shape of $Y$ is
+  `N x out_features`, the `N` is for each sample in the batch
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+  C. There is no need to materialize the entire Jacobian tensor for the gradient calculation. Generally, from the chain rule we know that the gradient is $\frac{dL}{dX}=\frac{dL}{dY} \cdot \frac{dY}{dX}$, since $Y=WX$ we can say that
+  $\frac{dL}{dX}=\frac{dL}{dY} \cdot \frac{d(WX)}{dX}=
+  \frac{dL}{dY} \cdot W^T$ and since $\frac{dL}{dY}$ is given we can now completely compute $\frac{dL}{dX}$ without materializing the entire Jacobian.
+
+2.
+    A. With the exact same explanation part A and given the shapes of all relevant tensors that we written in part A, the shape of the Jacobian tensor of $Y$ with respect to $W$ will be: \
+    `N x out_features x in_features x out_features = 64 x 512 x 1024 x 512`.
+
+    B. As we have shown in part 1.B, $Y_{i,k}=\sum_{j=1}^{in-features}x_{i,j}\cdot w_{j,k}$, we can clearly see that $Y_{i,k}$ is is built from $w_k$, therefor any derivatives of $Y_{i,k}$ with respect to $W_{j, u \ne k}$ will be $0$. Therefor the Jacobian of $Y$ w.r.t $W$ is sparse.
+
+    C. Just as in 1.C, There is no need to materialize the entire Jacobian tensor for the gradient calculation. Generally, from the chain rule we know that the gradient is $\frac{dL}{dX}=\frac{dL}{dY} \cdot \frac{dY}{dW}$, since $Y=WX$ we can say that
+  $\frac{dL}{dX}=\frac{dL}{dY} \cdot \frac{d(WX)}{dW}=
+  \frac{dL}{dY} \cdot X^T$ and since $\frac{dL}{dY}$ is given we can now completely compute $\frac{dL}{dW}$ without materializing the entire Jacobian.
 
 """
 
 part1_q2 = r"""
 **Your answer:**
-
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+Let us recall that back-propagation is an algorithm to calculate function gradients using the chain rule and starting from the top of the computational graph and going backwards to it's beginning. \
+Let us recall that training neural network with decent-based optimization method means we calculate gradients of the classification function with respect to model parameters and use it to try to reach a local minima of the function. Back-propagation is generally used to calculate the gradients while training NN but it is not entirely required, as we have seen in tutorial 5, we can also calculate gradients using forward automatic differentiation instead of reverse automatic differentiation (back-propagation), this is called forward mode AD. \
+In forward mode AD we start the gradient calculation in the begging of the computational graph and work out way up (still by using the chain rule), as we have seen in tutorial 5 - using forward mode AD will be less efficient in most cases for training a NN and that's the reason we will use back-propagation, but it is still possible to use it for training.
 
 """
 
@@ -91,59 +108,48 @@ def part2_dropout_hp():
 
 
 part2_q1 = r"""
-**Your answer:**
+1. The dropout vs. no-dropout graphs definitely matches our expectations. Generally we know that dropout is technique used to avoid overfitting and create a more robust model that will handle new samples better, more generalized. This is exactly what we see in the graphs, the no-dropout model reaches almost 80% accuracy on train set while only 23% on the test - this is clearly an overfitted model, on the other hand we can see both dropout models reached worse training accuracy but much much  better test accuracy - meaning those model were able to generalize the problem better, as we expected from what we know about dropout.
 
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+2. As we explained before, dropout is used to prevent overfitting, we can see that between the 2 dropout models, the one with the low-dropout was a bit overfitted (54 on train, 27.5 on test) while the hit-dropout was not overfitted at all (35 on train, 30 on test). This matches the assumption that dropout prevents overfitting.
 """
 
 part2_q2 = r"""
-**Your answer:**
-
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+It is possible for the test loss to increase while the test accuracy also increase when using cross entrophy loss, this is due to the fact that cross entropy loss is sensitive to the confidence of the model's predictions - it penalizes incorrect predictions more heavily if the model is very confident in its wrong prediction. During training the model might be very insecure on predictions and also make a lot of wrong predictions, this will cause bad accuracy and medium (not so large) loss, then, after some learning the model might get more confident on predictions (both right and wrong ones) and also have some more correct predictions, this will cause better accuracy that from the beginning bu t may also cause worse (larger) accuracy. In that case both loss and accuracy will grow increase.
 """
 
 part2_q3 = r"""
-**Your answer:**
+1. Both gradient descent and back-propagation are essential part of training deep neural networks but work on a different level of the training process.\
+Gradient descent is an iterative optimization algorithm that iteratively update function parameters on the opposite direction of the gradient in order to converge to some local minima of the function, generally it doesn't specify how the gradient is calculated but just mention its usage.\
+On the other hand, back-propagation is an algorithm that computes the gradient of a function (in the case of neural network - the cost function). Its implementation is based on the chain rule and the computational graph, generally in back-propagation we move backwards in the computational graph and in each step calculating relevant gradient and multiplying (according to chain rule). Back-propagation allows efficient gradient calculation and is used in most on the neural networks implementations.
 
+2. Both gradient descent and stochastic gradient descent are algorithms that use the cost function gradients to change the parameters in order to reach local minima.
+In deep learning the cost function takes points from the dataset as arguments for calculation, in GD, each iteration we take the entire dataset and calculate the average of the cost function and gradient over it. On the other hand in SGD we take a random sample out of the dataset and do the gradient calculation over it.
+After initializing some values to the functions' parameters, GD is deterministic since it alway takes the entire dataset, while SGD isn't since it takes a different sample every iteration. This causes GD to be more predictable and converge more smoothly while SGD may lack those. This may also cause GD to be a bit more accurate since it is more likely to reach the actual local minima than SGD.
+On the other hand, GD is obviously much slower to calculate, and when working on large dataset may not be realistic for usage while each iteration of SGD is very fast to compute.
+To sum up we can say SGD is better for large datasets due to its speed and memory efficiency, while GD is better for small datasets that prioritize accuracy and predictable behavior.
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+3. SGD is more used in deep learning because it fits better large scale problems with large datasets. \
+In modern deep learning most problems use very large dataset, ones that make gradient computation for the whole dataset very expensive in time and memory, also the cost function in deep learning can be complex and to derive over entire dataset each iteration, therefor using the entire dataset (such as they do in GD) is not practical id deep learning.
 """
 
 part2_q4 = r"""
-**Your answer:**
+1. Given function $f=f_n \circ f_{n-1} \circ ... \circ f_1$ s.t $f_i:R \rightarrow R$ is a differentiable function which is easy to evaluate and differentiate (each query costs $O(1)$ at a given point). We want to calculate $\nabla f(x_0)$ with lowest memory consumption Assuming that we are given $f$ already expressed as a computational graph.
+A. Let us use forward mode AD to calculate $\nabla f(x_0)$:
+As defined by forward mode AD, we will use the chain rule, starting from the beginning of the computational graph. \
+As we have seen in class, let $v_i$ be the $i$th node in the computational graph, we first initialize $v_0.grad=1$ then the step is: $v_{j+1}.grad ← f'_{j+1}(v_j.val)\cdot v_j.grad$,
+since we can get all derivatives of every $f_i$ in $O(1)$ each steps is done by $O(1)$, also all we need to save in memory is $v_{j+1}.grad$, therefor the memory complexity of this calculation is $O(1)$.
 
+B. Let us use reverse mode AD (a.k.a back-propagation) to calculate $\nabla f(x_0)$:
+As defined by reverse mode AD, we will use the chain rule, starting from the end of the computational graph. \
+As we have seen in class, let $v_i$ be the $i$th node in the computational graph, we first initialize $v_n.grad=1$ then the step is: $v_{j-1}.grad ← f'_{j}(v_{j-1}.val)\cdot v_j.grad$,
+since we can get all derivatives of every $f_i$ in $O(1)$ each steps is done by $O(1)$, also all we need to save in memory is $v_{j+1}.grad$, therefor the memory complexity of this calculation is $O(1)$.
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+2. To generalize these techniques to an arbitrary computational graph we have to remember that in our case all functions were 1-dimensional, when dealing with functions that get more than one scalar argument or produce more than one scalar output each node has to store the gradient w.r.t all the input nodes in forward mode or all the output nodes in reverse mode.
 
+3. Computing gradients in big deep architectures can be benefit from back-propagation with the techniques above because the deeper the network - the more gradients are needed to be calculated (since back-prop uses the chain rule) therefor cutting memory usage can be very beneficial for networks of high depth.
 """
 
 # ==============
-
 
 # ==============
 # Part 3 (MLP) answers
@@ -371,31 +377,16 @@ The shortcut identity path matches the dimensionality of the output from the mai
 # ==============
 # Part 5 (CNN Experiments) answers
 
-
 part5_q1 = r"""
-**Your answer:**
-
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+Generally the results of experiment 1.1 were successful for L=2,4, in both cases we managed to get test accuracy of 65-70%. \
+1. We can see in our experiments that L=4 bring the best empirical results - both with K=32 and K=64. We can see in the graphs that both L=4 and L=2 learn the data and increase accuracy but in L=2 the test accuracy converges before the L=4 models, that may be due to its limitations, with small amount of layers the model is weaker and while able to learn, its limits are greater and that's probably why L=4 was able to increase accuracy for a longer time and to a better result. On the other hand when the depth got larger - L=8,16, the models weren't able to learn at all, which we explain right below.
+2. when L=8,16, the models weren't able to learn, this might have been due to the vanishing gradients problem - the more layers there are in the network, the more multiplications are done due to chain rule in order to calculate the gradient, and if some of the values in the way are small, the gradients will vanish and the model parameters will not move. There are some possible solutions for that issue, one can be batch normalization - it will tune the values of the parameters in order to stabilize the learning process and improve the gradient flow. We can also use residual networks, as we learned in class res nets try to solve this issue by creating shortcuts in order to strengthen the signal and avoid gradient vanishing in the backpropagaion process.
 """
 
 part5_q2 = r"""
-**Your answer:**
-
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+In experiments 1.2 we managed to train all models except of one (L=8, K=32). When L=2 we can see that the models were limited due to small amount of layers and didn't get very high result on training, generalization was fine and test accuracy of all 3 different K values were close to train accuracy in that case. In experiment 1.1. the limited abilities of L=2 were also visible and close. We can also see that large amount of filters per layer (large K) isn't helpful without enough layers. \
+When L=4 and L=8 we see similar trends regarding K, we can see that with larger K the model is stronger and able to fit the training data better, but can also overfit, this is very clear in the test loss graphs that goes up after reaching good values, slightly after the test accuracy converged, even when using very small early_stopping value (in L=4) the test loss still managed to go up again before training stopped.
+When comparing to experiments 1.1 we can see that bigger K makes the model stronger but can also lead to overfitting very quickly.
 """
 
 part5_q3 = r"""
