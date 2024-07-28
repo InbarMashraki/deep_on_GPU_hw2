@@ -130,6 +130,15 @@ To sum up we can say SGD is better for large datasets due to its speed and memor
 
 3. SGD is more used in deep learning because it fits better large scale problems with large datasets. \
 In modern deep learning most problems use very large dataset, ones that make gradient computation for the whole dataset very expensive in time and memory, also the cost function in deep learning can be complex and to derive over entire dataset each iteration, therefor using the entire dataset (such as they do in GD) is not practical id deep learning.
+
+4. A. Yes, splitting the data into disjoint batches, doing multiple forward passes until all data is exhausted, and then do one backward pass on the sum of the losses should theoretically be equivalent to GD (with a small difference), generally this is true because of the fact that the sum of the gradients equal to the gradient of the sum. Let us explain further. \
+Given our model use some classification function $f(x)$ and some loss function $L$ we can say that in GD our actual cost function that will be derived to get the gradient in a training iteration will be $J(\theta) = \frac{1}{N} \sum_{i=1}^{N}L(f(x_i, \theta), y_i)$. \
+On the other hand if we separate the data into $B$ batches our cost function will be the sum of the cost over all batches, so we get
+$J(\theta) = \sum_{b=1}^{B} \frac{1}{N/B} \sum_{i=1}^{N/B}L(f(x_{bi}, \theta), y_{bi})=\frac{1}{N/B} \sum_{i=1}^{N}L(f(x_i, \theta), y_i)$ \
+We got almost the same final cost function with those 2 methods, only in the second method we multiply by different constant value, this should not be a problem because one can tune the learning rate accordingly. With almost the exact same cost function it is easy to understand that the gradients will also be equivalent, again, since the gradient of sum is sum of gradients.
+
+B. When doing multiple forward passes the way that was introduced above, the results are summed and all the intermediate activations and computational graphs for each batch are retained in memory, which can be a lot in a deep network with large training dataset. A different approach to fix this issue can be accumulating the gradients instead - meaning after each batch forward pass we do backwards pass, save the gradient and sum it we the gradient of the next batch backwards pass gradient result.
+
 """
 
 part2_q4 = r"""
@@ -388,9 +397,11 @@ On the other hand when the depth got larger - L=8,16 in the K=32 case and L=16 o
 """
 
 part5_q2 = r"""
-In experiments 1.2 we managed to train all models except of one (L=8, K=32). When L=2 we can see that the models were limited due to small amount of layers and didn't get very high result on training, generalization was fine and test accuracy of all 3 different K values were close to train accuracy in that case. In experiment 1.1. the limited abilities of L=2 were also visible and close. We can also see that large amount of filters per layer (large K) isn't helpful without enough layers. \
-When L=4 and L=8 we see similar trends regarding K, we can see that with larger K the model is stronger and able to fit the training data better, but can also overfit, this is very clear in the test loss graphs that goes up after reaching good values, slightly after the test accuracy converged, even when using very small early_stopping value (in L=4) the test loss still managed to go up again before training stopped.
-When comparing to experiments 1.1 we can see that bigger K makes the model stronger but can also lead to overfitting very quickly.
+In experiments 1.2 we managed to train all models except of one (L=8, K=32), all test accuracies were between 60%-70% when many reached above 67.5%. \
+We can generally state that higher K has the potential for better test accuracy, we see it in all experiments in part 1.2. \
+When L=4 and L=8 we see very similar trends regarding K, we can see that with larger K the model is stronger and able to get higher test accuracy, but can also overfit, this is very clear in the test loss graphs that goes up after reaching good values, slightly after the test accuracy converged, even when using very small early_stopping value (in L=4 we used early_stopping=2) the test loss still went up again before training stopped, when experimenting with higher early_stopping we also saw the test accuracy reducing.
+When comparing to experiments 1.1 we can see some similar and some different behaviors - first, regarding K - on both experiments we saw that bigger K can lead to better test accuracies but in experiment 1.1 it wasn't as clear as it is in experiment 1.2. \
+Additionally, in 1.2 we used K that wasn't used in 1.1 - K=128 and we see that it is a helpful value that can bring fine results.
 """
 
 part5_q3 = r"""

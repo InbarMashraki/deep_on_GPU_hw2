@@ -1,0 +1,86 @@
+{
+  "config": {
+    "run_name": "exp1_4",
+    "out_dir": "/home/inbar.m/hw/deep_on_gpu_hw2/results",
+    "seed": 42,
+    "device": null,
+    "bs_train": 64,
+    "bs_test": 64,
+    "batches": 1500,
+    "epochs": 30,
+    "early_stopping": 3,
+    "checkpoints": null,
+    "lr": 0.0001,
+    "reg": 0.0001,
+    "filters_per_layer": [
+      64,
+      128,
+      256
+    ],
+    "pool_every": 8,
+    "hidden_dims": [
+      512,
+      256
+    ],
+    "model_type": "resnet",
+    "activation_type": "relu",
+    "activation_params": {},
+    "conv_params": {
+      "kernel_size": 3,
+      "stride": 1,
+      "padding": 1
+    },
+    "pooling_params": {
+      "kernel_size": 2
+    },
+    "pooling_type": "max",
+    "batchnorm": true,
+    "dropout": 0.3,
+    "bottleneck": false,
+    "kw": {},
+    "layers_per_block": 2
+  },
+  "results": {
+    "num_epochs": 8,
+    "train_loss": [
+      1.6258249308751977,
+      1.302715753807741,
+      1.0885731099206772,
+      0.8774394344948137,
+      0.6873675115273127,
+      0.49577574382352707,
+      0.33077254708465714,
+      0.20547253832868909
+    ],
+    "train_acc": [
+      41.466,
+      53.336,
+      61.39,
+      69.104,
+      76.03,
+      82.742,
+      88.79,
+      93.228
+    ],
+    "test_loss": [
+      1.4542974620867686,
+      1.2616542406902191,
+      1.1086265873757137,
+      1.0910247727564186,
+      1.0450306914414569,
+      1.158793537859704,
+      1.3479339723374433,
+      1.4497395670338042
+    ],
+    "test_acc": [
+      49.53,
+      55.24,
+      62.67,
+      63.45,
+      66.31,
+      66.09,
+      65.76,
+      66.24
+    ]
+  }
+}

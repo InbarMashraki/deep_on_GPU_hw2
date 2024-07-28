@@ -1,0 +1,76 @@
+{
+  "config": {
+    "run_name": "exp1_2",
+    "out_dir": "/home/yonathanw/CS236781/Homework2/results",
+    "seed": 42,
+    "device": null,
+    "bs_train": 64,
+    "bs_test": 64,
+    "batches": 1500,
+    "epochs": 20,
+    "early_stopping": 5,
+    "checkpoints": null,
+    "lr": 0.0004,
+    "reg": 0.0005,
+    "filters_per_layer": [
+      32
+    ],
+    "pool_every": 6,
+    "hidden_dims": [
+      128
+    ],
+    "model_type": "cnn",
+    "activation_type": "relu",
+    "activation_params": {},
+    "conv_params": {
+      "kernel_size": 3,
+      "stride": 1,
+      "padding": 1
+    },
+    "pooling_params": {
+      "kernel_size": 2
+    },
+    "pooling_type": "max",
+    "batchnorm": true,
+    "dropout": 0.2,
+    "bottleneck": false,
+    "momentum": 0.99,
+    "kw": {},
+    "layers_per_block": 8
+  },
+  "results": {
+    "num_epochs": 6,
+    "train_loss": [
+      2.3031275211392765,
+      2.302790612515891,
+      2.302726710543913,
+      2.3026929203506628,
+      2.302675471891223,
+      2.302704963232855
+    ],
+    "train_acc": [
+      9.976,
+      9.97,
+      9.87,
+      9.908,
+      9.716,
+      9.752
+    ],
+    "test_loss": [
+      2.3028327173488155,
+      2.302705243894249,
+      2.3026089501229063,
+      2.3026013829905514,
+      2.3025977945631477,
+      2.3025926571742743
+    ],
+    "test_acc": [
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0
+    ]
+  }
+}
